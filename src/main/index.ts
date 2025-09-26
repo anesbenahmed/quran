@@ -1,14 +1,25 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import Database from 'better-sqlite3'
+
+const dbPath = is.dev
+  ? join(app.getAppPath(), 'resources/database/quran.db')
+  : join(process.resourcesPath, 'app.asar.unpacked/resources/database/quran.db')
+
+const db = new Database(dbPath)
+
 
 
 function createWindow(): void {
   // Create the browser window.
+
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize
+
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width,
+    height,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -64,7 +75,18 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    db.close()
     app.quit()
+  }
+})
+
+ipcMain.handle('db:query', (_event, sql, params) => {
+  try {
+    const stmt = db.prepare(sql)
+    return stmt.all(params)
+  } catch (err) {
+    console.error('Database query error:', err)
+    throw err // Forward the error to the renderer process
   }
 })
 

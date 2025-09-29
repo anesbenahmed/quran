@@ -2,12 +2,11 @@
 import { useState, useEffect } from "react"
 import type React from "react"
 
-import { ArrowRight, ArrowLeft, BookOpen } from "lucide-react"
-import { Button } from "./components/ui/button"
 // Use split components
 import HizbSelectionComp from "./components/navigation/HizbSelection"
 import QuarterSelectionComp from "./components/navigation/QuarterSelection"
 import ReadingViewComp from "./components/reading/ReadingView"
+import Sidebar from "./components/layout/Sidebar"
 
 // Main App Component
 function App(): React.ReactNode {
@@ -15,6 +14,7 @@ function App(): React.ReactNode {
   const [selectedHizb, setSelectedHizb] = useState<number | null>(null)
   const [selectedQuarter, setSelectedQuarter] = useState<number | null>(null)
   const [pendingScrollRowId, setPendingScrollRowId] = useState<number | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   // Navigation helpers for reading view
   const isAtStart = view === "reading" && selectedHizb === 1 && selectedQuarter === 1
@@ -133,70 +133,46 @@ function App(): React.ReactNode {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f2f7ff]" dir="rtl">
-      <header className="sticky top-0 z-50 w-full border-b shadow-sm bg-[#f2f7ff] border-[#d7e7ff]">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-semibold arabic-ui text-balance text-neutral-900">{getTitle()}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            {view === "quarter" && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={goToPrevHizb}
-                  disabled={isFirstHizb}
-                  className="arabic-ui gap-2 bg-transparent"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                  السابق
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={goToNextHizb}
-                  disabled={isLastHizb}
-                  className="arabic-ui gap-2 bg-transparent"
-                >
-                  التالي
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-            {view === "reading" && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={goToPrevQuarter}
-                  disabled={isAtStart}
-                  className="arabic-ui gap-2 bg-transparent"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                  السابق
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={goToNextQuarter}
-                  disabled={isAtEnd}
-                  className="arabic-ui gap-2 bg-transparent"
-                >
-                  التالي
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-            {view !== "hizb" && (
-              <Button variant="outline" onClick={handleBack} className="arabic-ui gap-2 bg-transparent">
-                رجوع
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="flex flex-1 items-center justify-center overflow-y-auto" dir="rtl">
+    <div className="flex min-h-screen flex-row-reverse bg-[#f2f7ff]" dir="rtl">
+      <Sidebar
+        open={sidebarOpen}
+        onToggle={() => setSidebarOpen((v) => !v)}
+        view={view as any}
+        canPrevHizb={isFirstHizb}
+        canNextHizb={isLastHizb}
+        canPrevQuarter={isAtStart}
+        canNextQuarter={isAtEnd}
+        onPrevHizb={goToPrevHizb}
+        onNextHizb={goToNextHizb}
+        onPrevQuarter={goToPrevQuarter}
+        onNextQuarter={goToNextQuarter}
+        onBack={handleBack}
+        onOpenAnnotations={() => {
+          if (view !== 'reading') {
+            // If we already have a hizb+quarter selected, navigate to reading first
+            if (selectedHizb && selectedQuarter) {
+              setView('reading')
+              setTimeout(() => window.dispatchEvent(new Event('open-annotations-panel')), 50)
+              return
+            }
+            // If we're in quarter view with a hizb selected but no quarter yet, default to quarter 1
+            if (view === 'quarter' && selectedHizb && !selectedQuarter) {
+              setSelectedQuarter(1)
+              setView('reading')
+              setTimeout(() => window.dispatchEvent(new Event('open-annotations-panel')), 80)
+              return
+            }
+            // Otherwise, keep UI consistent; user can pick hizb/quarter then open panel
+          } else {
+            window.dispatchEvent(new Event('open-annotations-panel'))
+          }
+        }}
+      />
+      <main className="flex-1 overflow-y-auto">
         <div className="container w-full max-w-5xl px-4 py-8" dir="rtl">
+          <div className="mb-6">
+            <h1 className="text-xl font-semibold arabic-ui text-neutral-900">{getTitle()}</h1>
+          </div>
           {view === "hizb" && <HizbSelectionComp onSelectHizb={handleSelectHizb} />}
           {view === "quarter" && selectedHizb !== null && (
             <QuarterSelectionComp hizb={selectedHizb} onSelectQuarter={handleSelectQuarter} />

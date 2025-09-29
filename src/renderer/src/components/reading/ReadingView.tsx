@@ -82,6 +82,12 @@ export default function ReadingView({
   const [selectedGroupId, setSelectedGroupId] = useState<"new" | string>("new")
 
   useEffect(() => {
+    const openPanel = () => setPanelOpen(true)
+    window.addEventListener('open-annotations-panel', openPanel as EventListener)
+    return () => window.removeEventListener('open-annotations-panel', openPanel as EventListener)
+  }, [])
+
+  useEffect(() => {
     const fetchAyat = async () => {
       setLoading(true)
       try {

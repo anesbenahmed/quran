@@ -1,43 +1,25 @@
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
-import { ArrowLeft, ArrowRight, BookOpen, ChevronsLeft, ChevronsRight, Settings, Search, Bookmark, StickyNote, PanelsTopLeft } from "lucide-react"
-
-export type View = 'hizb' | 'quarter' | 'reading'
+import { BookOpen, ChevronsLeft, ChevronsRight, Settings, Search, Bookmark, StickyNote, PanelsTopLeft } from "lucide-react"
 
 export default function Sidebar({
   open,
   onToggle,
-  view,
-  canPrevHizb,
-  canNextHizb,
-  canPrevQuarter,
-  canNextQuarter,
-  onPrevHizb,
-  onNextHizb,
-  onPrevQuarter,
-  onNextQuarter,
-  onBack,
   onOpenAnnotations,
+  side = "right",
 }: {
   open: boolean
   onToggle: () => void
-  view: View
-  canPrevHizb: boolean
-  canNextHizb: boolean
-  canPrevQuarter: boolean
-  canNextQuarter: boolean
-  onPrevHizb: () => void
-  onNextHizb: () => void
-  onPrevQuarter: () => void
-  onNextQuarter: () => void
-  onBack: () => void
   onOpenAnnotations: () => void
+  side?: "left" | "right"
 }) {
+  const borderSide = side === "left" ? "border-r" : "border-l"
   return (
     <aside
       dir="rtl"
       className={cn(
-        "relative h-screen border-l bg-white dark:bg-neutral-950 dark:border-neutral-800 shadow-sm",
+        "sticky top-0 h-screen z-10 bg-white dark:bg-neutral-950 dark:border-neutral-800 shadow-sm",
+        borderSide,
         open ? "w-64" : "w-16",
         "transition-all duration-200 flex flex-col"
       )}
@@ -53,38 +35,8 @@ export default function Sidebar({
         </Button>
       </div>
 
-      {/* Navigation group */}
-      <div className="p-3 space-y-2 border-b dark:border-neutral-800">
-        {view !== 'hizb' && (
-          <SidebarItem open={open} icon={<ArrowLeft className="w-4 h-4" />} label="رجوع" onClick={onBack} />
-        )}
-
-        {view === 'quarter' && (
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex-1" onClick={onPrevHizb} disabled={canPrevHizb}>
-              <ArrowRight className="w-4 h-4" />
-              {open && <span className="arabic-ui">السابق</span>}
-            </Button>
-            <Button variant="outline" className="flex-1" onClick={onNextHizb} disabled={canNextHizb}>
-              {open && <span className="arabic-ui">التالي</span>}
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-
-        {view === 'reading' && (
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex-1" onClick={onPrevQuarter} disabled={canPrevQuarter}>
-              <ArrowRight className="w-4 h-4" />
-              {open && <span className="arabic-ui">السابق</span>}
-            </Button>
-            <Button variant="outline" className="flex-1" onClick={onNextQuarter} disabled={canNextQuarter}>
-              {open && <span className="arabic-ui">التالي</span>}
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-      </div>
+      {/* Primary actions */}
+      <div className="p-3 space-y-2 border-b dark:border-neutral-800" />
 
       {/* Primary actions */}
       <nav className="p-3 space-y-2">

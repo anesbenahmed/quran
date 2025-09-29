@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "../ui/dialog"
 import { Textarea } from "../ui/textarea"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 // Tabs removed from here; panel is now its own component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import AnnotationsPanel from "../annotations/AnnotationsPanel"
@@ -35,12 +36,16 @@ export default function ReadingView({
   onRequestNavigate,
   pendingScrollRowId,
   onPendingScrollConsumed,
+  onPrevQuarter,
+  onNextQuarter,
 }: {
   hizb: number
   quarter: number
   onRequestNavigate?: (h: number, q: number, rowId?: number) => void
   pendingScrollRowId?: number | null
   onPendingScrollConsumed?: () => void
+  onPrevQuarter?: () => void
+  onNextQuarter?: () => void
 }) {
   const [ayat, setAyat] = useState<WarshQuranEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -448,37 +453,52 @@ export default function ReadingView({
   }
 
   return (
-    <div className="max-w-4xl mx-auto transition-colors">
-      <Card className="shadow-none bg-transparent border-0">
-        <CardContent className="p-8 md:p-12">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b pb-6">
-              <div className="text-center mx-auto">
-                <h2 className="text-2xl font-semibold arabic-ui text-primary mb-2">
-                  الحزب {hizb} - الربع {quarter}
-                </h2>
-                <div className="w-16 h-1 bg-accent mx-auto rounded-full"></div>
+    <div className="relative max-w-5xl mx-auto transition-colors h-screen" dir="rtl">
+      <Card className="shadow-none bg-transparent border-0 h-full">
+        <CardContent className="p-6 md:p-8 h-full">
+          {/* Scroll container with left scrollbar (flip hack) */}
+          <div className="h-full overflow-y-auto" style={{ transform: "scaleX(-1)" }} dir="ltr">
+            {/* Inner content (flip back) */}
+            <div style={{ transform: "scaleX(-1)" }} dir="rtl">
+              {/* Title */}
+              <div className="text-center mb-3">
+                <h2 className="text-2xl font-semibold arabic-ui text-primary">الحزب {hizb} - الربع {quarter}</h2>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" className="arabic-ui bg-transparent" onClick={() => setPanelOpen(true)}>
-                  عرض العلامات
+              {/* Top arrow group centered */}
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <Button variant="ghost" size="icon" onClick={onPrevQuarter} aria-label="السابق">
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={onNextQuarter} aria-label="التالي">
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
-            </div>
 
-            <div
-              ref={containerRef}
-              onContextMenu={handleContextMenu}
-              className="quran-text text-right leading-loose text-2xl md:text-3xl text-neutral-900 dark:text-neutral-200"
-              style={{ fontFamily: "Quran", lineHeight: "3.3rem" }}
-            >
-              {ayat.length > 0 ? (
-                <p className="text-pretty" dir="rtl">
-                  {ayat.map((row, idx) => renderRow(row, idx === ayat.length - 1))}
-                </p>
-              ) : (
-                <p className="arabic-ui text-muted-foreground text-center py-8">لم يتم العثور على آيات لهذا الربع.</p>
-              )}
+              {/* Verses container (selection area) */}
+              <div
+                ref={containerRef}
+                onContextMenu={handleContextMenu}
+                className="quran-text text-right leading-loose text-2xl md:text-3xl text-neutral-900 dark:text-neutral-200"
+                style={{ fontFamily: "Quran", lineHeight: "3.3rem" }}
+              >
+                {ayat.length > 0 ? (
+                  <p className="text-pretty" dir="rtl">
+                    {ayat.map((row, idx) => renderRow(row, idx === ayat.length - 1))}
+                  </p>
+                ) : (
+                  <p className="arabic-ui text-muted-foreground text-center py-8">لم يتم العثور على آيات لهذا الربع.</p>
+                )}
+              </div>
+
+              {/* Bottom arrow group centered */}
+              <div className="flex items-center justify-center gap-2 mt-6 mb-2">
+                <Button variant="ghost" size="icon" onClick={onPrevQuarter} aria-label="السابق">
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={onNextQuarter} aria-label="التالي">
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>

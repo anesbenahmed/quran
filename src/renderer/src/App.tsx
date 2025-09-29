@@ -7,6 +7,8 @@ import HizbSelectionComp from "./components/navigation/HizbSelection"
 import QuarterSelectionComp from "./components/navigation/QuarterSelection"
 import ReadingViewComp from "./components/reading/ReadingView"
 import Sidebar from "./components/layout/Sidebar"
+import { Button } from "./components/ui/button"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 // Main App Component
 function App(): React.ReactNode {
@@ -132,21 +134,14 @@ function App(): React.ReactNode {
     return "قارئ القرآن الكريم"
   }
 
+  const layoutDirection = view === "reading" ? "flex-row" : "flex-row-reverse"
+
   return (
-    <div className="flex min-h-screen flex-row-reverse bg-[#f2f7ff]" dir="rtl">
+    <div className={`flex min-h-screen ${layoutDirection} bg-[#f2f7ff]`}>
       <Sidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen((v) => !v)}
-        view={view as any}
-        canPrevHizb={isFirstHizb}
-        canNextHizb={isLastHizb}
-        canPrevQuarter={isAtStart}
-        canNextQuarter={isAtEnd}
-        onPrevHizb={goToPrevHizb}
-        onNextHizb={goToNextHizb}
-        onPrevQuarter={goToPrevQuarter}
-        onNextQuarter={goToNextQuarter}
-        onBack={handleBack}
+        side={view === "reading" ? "left" : "right"}
         onOpenAnnotations={() => {
           if (view !== 'reading') {
             // If we already have a hizb+quarter selected, navigate to reading first
@@ -168,14 +163,48 @@ function App(): React.ReactNode {
           }
         }}
       />
-      <main className="flex-1 overflow-y-auto">
-        <div className="container w-full max-w-5xl px-4 py-8" dir="rtl">
-          <div className="mb-6">
-            <h1 className="text-xl font-semibold arabic-ui text-neutral-900">{getTitle()}</h1>
-          </div>
-          {view === "hizb" && <HizbSelectionComp onSelectHizb={handleSelectHizb} />}
+      <main className="flex-1 overflow-hidden">
+        <div className="w-full max-w-5xl mx-auto px-4 py-8" dir="rtl">
+          {view !== "hizb" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="fixed left-4 top-4 z-30"
+              onClick={handleBack}
+              aria-label="رجوع"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
+          {view === "hizb" && (
+            <div className="min-h-[calc(100vh-0px)] flex items-center justify-center" dir="rtl">
+              <HizbSelectionComp onSelectHizb={handleSelectHizb} />
+            </div>
+          )}
           {view === "quarter" && selectedHizb !== null && (
-            <QuarterSelectionComp hizb={selectedHizb} onSelectQuarter={handleSelectQuarter} />
+            <div>
+              <QuarterSelectionComp hizb={selectedHizb} onSelectQuarter={handleSelectQuarter} />
+              <div className="mt-4 flex items-center justify-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={goToPrevHizb}
+                  disabled={isFirstHizb}
+                  aria-label="السابق"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={goToNextHizb}
+                  disabled={isLastHizb}
+                  aria-label="التالي"
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
           )}
           {view === "reading" && selectedHizb && selectedQuarter && (
             <ReadingViewComp
@@ -184,6 +213,8 @@ function App(): React.ReactNode {
               onRequestNavigate={handleRequestNavigate}
               pendingScrollRowId={pendingScrollRowId}
               onPendingScrollConsumed={() => setPendingScrollRowId(null)}
+              onPrevQuarter={goToPrevQuarter}
+              onNextQuarter={goToNextQuarter}
             />
           )}
         </div>

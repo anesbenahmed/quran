@@ -10,7 +10,7 @@ export default function HizbSelection({ onSelectHizb }: { onSelectHizb: (hizb: n
         <p className="text-muted-foreground arabic-ui">اختر الحزب الذي تريد قراءته من القرآن الكريم</p>
       </div>
 
-      <div className="mx-auto grid grid-cols-6 gap-3 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12">
+      <div className="mx-auto max-w-[720px] grid grid-cols-6 gap-3 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 justify-items-center">
         {hizbs.map((hizb) => (
           <Button
             key={hizb}

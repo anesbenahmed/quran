@@ -137,7 +137,7 @@ function App(): React.ReactNode {
   const layoutDirection = view === "reading" ? "flex-row" : "flex-row-reverse"
 
   return (
-    <div className={`flex min-h-screen ${layoutDirection} bg-[#f2f7ff]`}>
+    <div className={`flex max-h-screen overflow-hidden bg-[#f2f7ff]`}>
       <Sidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen((v) => !v)}
@@ -163,8 +163,8 @@ function App(): React.ReactNode {
           }
         }}
       />
-      <main className="flex-1 overflow-hidden">
-        <div className="w-full max-w-5xl mx-auto px-4 py-8" dir="rtl">
+      <main className="flex-1">
+        <div className="w-full max-w-5xl mx-auto" dir="rtl">
           {view !== "hizb" && (
             <Button
               variant="ghost"
@@ -182,7 +182,7 @@ function App(): React.ReactNode {
             </div>
           )}
           {view === "quarter" && selectedHizb !== null && (
-            <div>
+            <div className="min-h-[calc(100vh-0px)] flex flex-col items-center justify-center">
               <QuarterSelectionComp hizb={selectedHizb} onSelectQuarter={handleSelectQuarter} />
               <div className="mt-4 flex items-center justify-center gap-3">
                 <Button
@@ -192,7 +192,7 @@ function App(): React.ReactNode {
                   disabled={isFirstHizb}
                   aria-label="السابق"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -201,7 +201,7 @@ function App(): React.ReactNode {
                   disabled={isLastHizb}
                   aria-label="التالي"
                 >
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowLeft className="w-5 h-5" />
                 </Button>
               </div>
             </div>

@@ -453,27 +453,26 @@ export default function ReadingView({
   }
 
   return (
-    <div className="relative max-w-5xl mx-auto transition-colors h-screen" dir="rtl">
+    <div className="relative max-w-8xl mx-auto transition-colors h-screen mb-0" dir="rtl">
       <Card className="shadow-none bg-transparent border-0 h-full">
-        <CardContent className="p-6 md:p-8 h-full">
-          {/* Scroll container with left scrollbar (flip hack) */}
-          <div className="h-full overflow-y-auto" style={{ transform: "scaleX(-1)" }} dir="ltr">
-            {/* Inner content (flip back) */}
-            <div style={{ transform: "scaleX(-1)" }} dir="rtl">
-              {/* Title */}
-              <div className="text-center mb-3">
-                <h2 className="text-2xl font-semibold arabic-ui text-primary">الحزب {hizb} - الربع {quarter}</h2>
-              </div>
-              {/* Top arrow group centered */}
-              <div className="flex items-center justify-center gap-2 mb-6">
-                <Button variant="ghost" size="icon" onClick={onPrevQuarter} aria-label="السابق">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={onNextQuarter} aria-label="التالي">
+        <CardContent className="py-6 h-full flex flex-col">
+                      {/* 
+              <div className="text-center mb-4 flex flex items-center justify-center gap-6">
+                      <Button variant="ghost" size="icon" onClick={onPrevQuarter} aria-label="السابق">
                   <ArrowRight className="w-5 h-5" />
                 </Button>
-              </div>
+                <h2 className="text-xl arabic-ui text-primary">الحزب {hizb} - الربع {quarter}</h2>
+                <Button variant="ghost" size="icon" onClick={onNextQuarter} aria-label="التالي">
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </div> */}
 
+
+          {/* Scroll container with left scrollbar (flip hack) */}
+          <div className="h-full overflow-y-auto px-3" style={{ transform: "scaleX(-1)" }} dir="ltr">
+            {/* Inner content (flip back) */}
+            <div style={{ transform: "scaleX(-1)" }} dir="rtl">
+  
               {/* Verses container (selection area) */}
               <div
                 ref={containerRef}
@@ -490,15 +489,6 @@ export default function ReadingView({
                 )}
               </div>
 
-              {/* Bottom arrow group centered */}
-              <div className="flex items-center justify-center gap-2 mt-6 mb-2">
-                <Button variant="ghost" size="icon" onClick={onPrevQuarter} aria-label="السابق">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={onNextQuarter} aria-label="التالي">
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
-              </div>
             </div>
           </div>
         </CardContent>

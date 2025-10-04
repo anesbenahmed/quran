@@ -80,7 +80,7 @@ export default function QuarterSelection({
                 </div>
               </div>
 
-              <div className="quran-text text-right leading-relaxed text-foreground/80 line-clamp-4">
+              <div className="quran-text text-right leading-relaxed text-foreground/80 line-clamp-4" style={{ fontFamily: "Quran", fontSize: "1.3rem"}}>
                 {preview || "لم يتم العثور على آيات لهذا الربع."}
               </div>
             </CardContent>

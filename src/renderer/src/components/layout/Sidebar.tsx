@@ -27,8 +27,12 @@ export default function Sidebar({
       {/* Collapse / Expand */}
       <div className="flex items-center justify-between p-3 border-b dark:border-neutral-800">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-primary" />
-          {open && <span className="arabic-ui font-semibold">القرآن الكريم</span>}
+          {open && (
+            <>
+              <BookOpen className="w-5 h-5 text-primary" />
+              <span className="arabic-ui font-semibold">القرآن الكريم</span>
+            </>
+          )}
         </div>
         <Button variant="ghost" size="icon" onClick={onToggle} className="hover:bg-neutral-100 dark:hover:bg-neutral-800">
           {open ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}

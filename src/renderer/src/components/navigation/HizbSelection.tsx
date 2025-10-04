@@ -4,13 +4,13 @@ export default function HizbSelection({ onSelectHizb }: { onSelectHizb: (hizb: n
   const hizbs = Array.from({ length: 60 }, (_, i) => i + 1)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-semibold arabic-ui">اختر الحزب</h2>
         <p className="text-muted-foreground arabic-ui">اختر الحزب الذي تريد قراءته من القرآن الكريم</p>
       </div>
 
-      <div className="mx-auto max-w-[720px] grid grid-cols-6 gap-3 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 justify-items-center">
+      <div className="mx-auto grid grid-cols-6 gap-3 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 justify-items-center">
         {hizbs.map((hizb) => (
           <Button
             key={hizb}

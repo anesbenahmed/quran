@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent } from "../components/ui/card"
 import { Button } from "../components/ui/button"
 import { useAppContext } from "../context/AppContext"
@@ -68,15 +68,15 @@ export default function MarksSection() {
         </div>
 
         <div className="flex-1 overflow-auto space-y-3">
-          {loading && <p className="arabic-ui text-neutral-500">جارٍ التحميل...</p>}
+          {loading && <p className="arabic-ui text-muted-foreground">جارٍ التحميل...</p>}
           {!loading && visible.length === 0 && (
-            <p className="arabic-ui text-neutral-500">لا توجد عناصر.</p>
+            <p className="arabic-ui text-muted-foreground">لا توجد عناصر.</p>
           )}
           {!loading && visible.map((m) => (
             <Card key={m.id} className="hover:shadow-sm">
               <CardContent className="p-4 flex items-center justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="text-sm text-neutral-500 arabic-ui mb-1">
+                  <div className="text-sm text-muted-foreground arabic-ui mb-1">
                     الحزب {m.hizb} • الربع {m.quarter} • {labelOf(m.type)}
                   </div>
                   <div className="truncate arabic-ui">

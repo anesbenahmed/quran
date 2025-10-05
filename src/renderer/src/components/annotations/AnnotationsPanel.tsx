@@ -55,7 +55,7 @@ export default function AnnotationsPanel({
             </TabsList>
           </Tabs>
           {annotations.length === 0 ? (
-            <p className="text-sm text-neutral-500">لا توجد عناصر بعد.</p>
+            <p className="text-sm text-muted-foreground">لا توجد عناصر بعد.</p>
           ) : (
             <ul className="space-y-3">
               {annotations
@@ -63,22 +63,22 @@ export default function AnnotationsPanel({
                 .slice()
                 .sort((a, b) => (a as any).createdAt - (b as any).createdAt)
                 .map((a) => (
-                  <li key={a.id} className="flex items-start justify-between gap-3 border-b pb-3">
+                  <li key={a.id} className="flex items-start justify-between gap-3 border-b border-border pb-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-0.5 rounded-full border">
+                        <span className="text-xs px-2 py-0.5 rounded-full border border-border">
                           {a.type === "note" ? "ملاحظة" : a.type === "mistake" ? "خطأ" : "متشابهات"}
                         </span>
                         {a.color && (
                           <span className="inline-block w-3 h-3 rounded" style={{ backgroundColor: a.color }} aria-label="color" />
                         )}
-                        <span className="text-xs text-neutral-500">الحزب {a.hizb} - الربع {a.quarter}</span>
+                        <span className="text-xs text-muted-foreground">الحزب {a.hizb} - الربع {a.quarter}</span>
                       </div>
                       <div className="text-sm">
                         {a.excerpt && a.excerpt.length > 0 ? (a.excerpt.length > 120 ? a.excerpt.slice(0, 120) + "…" : a.excerpt) : ""}
                       </div>
                       {a.type === "note" && a.note && (
-                        <div className="text-xs text-neutral-600">"{a.note}"</div>
+                        <div className="text-xs text-muted-foreground">"{a.note}"</div>
                       )}
                     </div>
                     <div className="flex items-center gap-2">

@@ -4,9 +4,11 @@ import * as SettingsService from "../services/settings"
 type Section = "reading" | "marks" | "settings"
 
 type Theme = "light" | "dark" | "system"
+type Accent = "default" | "blue" | "indigo" | "emerald"
 
 export interface AppSettings {
   theme: Theme
+  accent: Accent
 }
 
 interface AppContextValue {
@@ -14,6 +16,7 @@ interface AppContextValue {
   setSection: (s: Section) => void
   settings: AppSettings
   setTheme: (t: Theme) => Promise<void>
+  setAccent: (a: Accent) => Promise<void>
   goToReading: (hizb: number, quarter: number, rowId?: number) => void
 }
 
@@ -21,7 +24,7 @@ const AppContext = createContext<AppContextValue | undefined>(undefined)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [section, setSection] = useState<Section>("reading")
-  const [settings, setSettings] = useState<AppSettings>({ theme: "system" })
+  const [settings, setSettings] = useState<AppSettings>({ theme: "system", accent: "default" })
 
   // Apply theme to <html> element
   const applyTheme = useCallback((t: Theme) => {
@@ -46,13 +49,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return () => remove && remove()
   }, [settings.theme, applyTheme])
 
+  // Apply accent class on <html>
+  useEffect(() => {
+    const html = document.documentElement
+    const classes = ["theme-blue", "theme-indigo", "theme-emerald"]
+    classes.forEach((c) => html.classList.remove(c))
+    if (settings.accent && settings.accent !== "default") {
+      html.classList.add(`theme-${settings.accent}`)
+    }
+  }, [settings.accent])
+
   // Load settings from DB
   useEffect(() => {
     (async () => {
       try {
         await SettingsService.initialize()
         const theme = (await SettingsService.get("theme")) as Theme | null
-        if (theme) setSettings((s) => ({ ...s, theme }))
+        const accent = (await SettingsService.get("accent")) as Accent | null
+        setSettings((s) => ({
+          ...s,
+          theme: theme ?? s.theme,
+          accent: accent ?? s.accent,
+        }))
       } catch (e) {
         console.error("Failed to init/load settings:", e)
       }
@@ -68,6 +86,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  const setAccent = useCallback(async (a: Accent) => {
+    setSettings((s) => ({ ...s, accent: a }))
+    try {
+      await SettingsService.set("accent", a)
+    } catch (e) {
+      console.error("Failed to persist accent:", e)
+    }
+  }, [])
+
   const goToReading = useCallback((hizb: number, quarter: number, rowId?: number) => {
     setSection("reading")
     window.dispatchEvent(
@@ -76,8 +103,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const value = useMemo<AppContextValue>(
-    () => ({ section, setSection, settings, setTheme, goToReading }),
-    [section, settings, setTheme, goToReading],
+    () => ({ section, setSection, settings, setTheme, setAccent, goToReading }),
+    [section, settings, setTheme, setAccent, goToReading],
   )
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

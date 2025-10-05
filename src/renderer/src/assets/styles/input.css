@@ -9,11 +9,55 @@
     font-style: normal;
   }
 
+/* Design tokens (CSS Variables) */
+:root {
+  /* Light theme */
+  --background: 242 247 255; /* #f2f7ff */
+  --surface: 255 255 255;    /* #ffffff */
+  --border: 229 231 235;     /* neutral-200 */
+  --foreground: 23 23 23;    /* neutral-900 */
+  --muted: 245 247 250;      /* subtle gray/blue */
+  --muted-foreground: 107 114 128; /* neutral-500 */
+  --primary: 37 99 235;      /* blue-600 */
+  --primary-foreground: 255 255 255;
+  --ring: 59 130 246;        /* blue-500 */
+}
+
+.dark {
+  /* Dark theme */
+  --background: 10 10 10;    /* near black */
+  --surface: 23 23 23;       /* neutral-900 */
+  --border: 38 38 40;        /* neutral-800 */
+  --foreground: 229 231 235; /* neutral-200 */
+  --muted: 28 28 32;         /* neutral-850 */
+  --muted-foreground: 156 163 175; /* neutral-400 */
+  --primary: 99 102 241;     /* indigo-500 */
+  --primary-foreground: 255 255 255;
+  --ring: 99 102 241;        /* indigo-500 */
+}
+
+/* Optional accent theme example (primary color only) */
+.theme-blue {
+  --primary: 29 78 216;  /* blue-700 */
+  --ring: 59 130 246;    /* blue-500 */
+}
+
+.theme-indigo {
+  --primary: 79 70 229; /* indigo-600 */
+  --ring: 99 102 241;   /* indigo-500 */
+}
+
+.theme-emerald {
+  --primary: 5 150 105; /* emerald-600 */
+  --ring: 16 185 129;   /* emerald-500 */
+}
+
 html,
 body {
   direction: rtl;
   unicode-bidi: embed;
-  background-color: #f2f7ff; /* soft light-blue for comfortable reading */
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
 }
 
 /* Custom scrollbar styling */
@@ -27,16 +71,16 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(var(--foreground), 0.25);
   border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(var(--foreground), 0.35);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.35) transparent;
+  scrollbar-color: rgba(var(--foreground), 0.35) transparent;
 }

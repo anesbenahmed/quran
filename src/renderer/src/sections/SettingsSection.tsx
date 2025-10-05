@@ -1,11 +1,11 @@
-import React from "react"
+//
 import { useAppContext } from "../context/AppContext"
 import { Card, CardContent } from "../components/ui/card"
 import { Label } from "../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 
 export default function SettingsSection() {
-  const { settings, setTheme } = useAppContext()
+  const { settings, setTheme, setAccent } = useAppContext()
 
   return (
     <div className="h-full w-full flex items-center justify-center" dir="rtl">
@@ -13,7 +13,7 @@ export default function SettingsSection() {
         <CardContent className="p-6 space-y-6">
           <div>
             <h2 className="text-xl font-semibold arabic-ui">الإعدادات</h2>
-            <p className="text-sm text-neutral-500 mt-1 arabic-ui">تخصيص واجهة التطبيق</p>
+            <p className="text-sm text-muted-foreground mt-1 arabic-ui">تخصيص واجهة التطبيق</p>
           </div>
 
           <div className="space-y-2">
@@ -26,6 +26,21 @@ export default function SettingsSection() {
                 <SelectItem value="system">النظام</SelectItem>
                 <SelectItem value="light">فاتح</SelectItem>
                 <SelectItem value="dark">داكن</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="arabic-ui">اللون الأساسي</Label>
+            <Select value={settings.accent} onValueChange={(v) => setAccent(v as any)}>
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="اللون" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">افتراضي</SelectItem>
+                <SelectItem value="blue">أزرق</SelectItem>
+                <SelectItem value="indigo">نيلي</SelectItem>
+                <SelectItem value="emerald">زمردي</SelectItem>
               </SelectContent>
             </Select>
           </div>

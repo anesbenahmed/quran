@@ -23,8 +23,6 @@ function App(): React.ReactNode {
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   // Navigation helpers for reading view
-  const isAtStart = view === "reading" && selectedHizb === 1 && selectedQuarter === 1
-  const isAtEnd = view === "reading" && selectedHizb === 60 && selectedQuarter === 4
   // Navigation helpers for quarter view (hizb level)
   const isFirstHizb = selectedHizb === 1
   const isLastHizb = selectedHizb === 60
@@ -128,16 +126,7 @@ function App(): React.ReactNode {
     if (rowId != null) setPendingScrollRowId(rowId)
   }
 
-  const getTitle = () => {
-    if (section === "reading") {
-      if (view === "reading" && selectedHizb && selectedQuarter) return `الحزب ${selectedHizb}، الربع ${selectedQuarter}`
-      if (view === "quarter" && selectedHizb) return `الحزب ${selectedHizb}: اختر ربعا`
-      return "قارئ القرآن الكريم"
-    }
-    if (section === "marks") return "العلامات"
-    if (section === "settings") return "الإعدادات"
-    return "قارئ القرآن الكريم"
-  }
+  // Title is computed inline where needed; helper removed
 
   // Listen to navigation requests from other sections
   useEffect(() => {
@@ -150,7 +139,7 @@ function App(): React.ReactNode {
   }, [])
 
   return (
-    <div className={`flex h-screen overflow-hidden bg-[#f2f7ff]`}>
+    <div className={`flex h-screen overflow-hidden bg-background`}>
       <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen((v) => !v)} side="left" />
       <main className="flex-1 h-screen overflow-hidden">
         <div className="w-full h-full max-w-5xl mx-auto" dir="rtl">
@@ -202,8 +191,6 @@ function App(): React.ReactNode {
               onRequestNavigate={handleRequestNavigate}
               pendingScrollRowId={pendingScrollRowId}
               onPendingScrollConsumed={() => setPendingScrollRowId(null)}
-              onPrevQuarter={goToPrevQuarter}
-              onNextQuarter={goToNextQuarter}
             />
           )}
           {section === "marks" && (

@@ -18,14 +18,14 @@ export default function Sidebar({
     <aside
       dir="rtl"
       className={cn(
-        "sticky top-0 h-screen z-10 bg-white dark:bg-neutral-950 dark:border-neutral-800 shadow-sm flex-none",
+        "sticky top-0 h-screen z-10 bg-surface border-border text-foreground shadow-sm flex-none",
         borderSide,
         open ? "w-64" : "w-16",
         "transition-all duration-200 flex flex-col"
       )}
     >
       {/* Collapse / Expand */}
-      <div className="flex items-center justify-between p-3 border-b dark:border-neutral-800">
+      <div className="flex items-center justify-between p-3 border-b border-border">
         <div className="flex items-center gap-2">
           {open && (
             <>
@@ -34,13 +34,13 @@ export default function Sidebar({
             </>
           )}
         </div>
-        <Button variant="ghost" size="icon" onClick={onToggle} className="hover:bg-neutral-100 dark:hover:bg-neutral-800">
+        <Button variant="ghost" size="icon" onClick={onToggle} className="hover:bg-muted">
           {open ? <ChevronsRight className="w-5 h-5" /> : <ChevronsLeft className="w-5 h-5" />}
         </Button>
       </div>
 
       {/* Primary actions */}
-      <div className="p-3 space-y-2 border-b dark:border-neutral-800" />
+      <div className="p-3 space-y-2 border-b border-border" />
 
       {/* Primary actions */}
       <nav className="p-3 space-y-2">
@@ -55,7 +55,7 @@ export default function Sidebar({
       <div className="flex-1" />
 
       {/* Settings */}
-      <div className="p-3 border-t dark:border-neutral-800">
+      <div className="p-3 border-t border-border">
         <SidebarItem open={open} icon={<Settings className="w-4 h-4" />} label="الإعدادات" onClick={() => setSection("settings")} />
       </div>
     </aside>
@@ -67,7 +67,7 @@ function SidebarItem({ open, icon, label, onClick }: { open: boolean; icon: Reac
     <Button
       variant="ghost"
       className={cn(
-        "w-full justify-start gap-3 hover:bg-neutral-100 dark:hover:bg-neutral-800",
+        "w-full justify-start gap-3 hover:bg-muted",
         !open && "justify-center"
       )}
       onClick={onClick}

@@ -41,7 +41,7 @@ export default function VerseContainer({
     if (isSuraStart && !startsWithBasmala) {
       content.push(
         <div key={`bsm-${row.id}`} className="text-center my-3 select-none" aria-hidden="true">
-          <div className="arabic-ui text-xl text-neutral-700">{BASMALA}</div>
+          <div className="arabic-ui text-xl text-muted-foreground">{BASMALA}</div>
         </div>,
       )
     }

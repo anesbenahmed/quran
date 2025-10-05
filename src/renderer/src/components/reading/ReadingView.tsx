@@ -10,7 +10,6 @@ import {
   DialogTitle,
 } from "../ui/dialog"
 import { Textarea } from "../ui/textarea"
-import { ArrowLeft, ArrowRight } from "lucide-react"
 import VerseContainer from "./VerseContainer"
 // Tabs removed from here; panel is now its own component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
@@ -37,16 +36,12 @@ export default function ReadingView({
   onRequestNavigate,
   pendingScrollRowId,
   onPendingScrollConsumed,
-  onPrevQuarter,
-  onNextQuarter,
 }: {
   hizb: number
   quarter: number
   onRequestNavigate?: (h: number, q: number, rowId?: number) => void
   pendingScrollRowId?: number | null
   onPendingScrollConsumed?: () => void
-  onPrevQuarter?: () => void
-  onNextQuarter?: () => void
 }) {
   const [ayat, setAyat] = useState<WarshQuranEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -476,7 +471,7 @@ export default function ReadingView({
   
               {/* Verses container (selection area) */}
               <div
-                className="quran-text text-right leading-loose text-2xl md:text-3xl text-neutral-900 dark:text-neutral-200"
+                className="quran-text text-right leading-loose text-2xl md:text-3xl text-foreground"
                 style={{ fontFamily: "Quran", lineHeight: "3.3rem" }}
               >
                 <VerseContainer
@@ -494,19 +489,19 @@ export default function ReadingView({
 
       {contextMenu.visible && (
         <div
-          className="fixed z-50 min-w-[12rem] rounded-md border border-neutral-200 bg-white p-1 text-neutral-950 shadow-md dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50"
+          className="fixed z-50 min-w-[12rem] rounded-md border border-border bg-surface p-1 text-foreground shadow-md"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
-          <div className="px-3 py-2 text-sm text-neutral-600 dark:text-neutral-300">
+          <div className="px-3 py-2 text-sm text-muted-foreground">
             تحديد: <span className="font-semibold">{contextMenu.selectionText}</span>
           </div>
-          <button className="w-full text-right px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800" onClick={handleAddNote}>
+          <button className="w-full text-right px-3 py-2 text-sm hover:bg-muted" onClick={handleAddNote}>
             إضافة ملاحظة
           </button>
-          <button className="w-full text-right px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800" onClick={handleAddMistake}>
+          <button className="w-full text-right px-3 py-2 text-sm hover:bg-muted" onClick={handleAddMistake}>
             إضافة خطأ (لون النص)
           </button>
-          <button className="w-full text-right px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800" onClick={handleAddMutashabih}>
+          <button className="w-full text-right px-3 py-2 text-sm hover:bg-muted" onClick={handleAddMutashabih}>
             إضافة متشابهات (لون الخلفية)
           </button>
         </div>

@@ -455,7 +455,7 @@ export default function ReadingView({
   return (
     <div className="relative max-w-8xl mx-auto transition-colors h-screen mb-0" dir="rtl">
       <Card className="shadow-none bg-transparent border-0 h-full">
-        <CardContent className="py-6 h-full flex flex-col">
+        <CardContent className="p-10 h-full flex flex-col">
                       {/* 
               <div className="text-center mb-4 flex flex items-center justify-center gap-6">
                       <Button variant="ghost" size="icon" onClick={onPrevQuarter} aria-label="السابق">

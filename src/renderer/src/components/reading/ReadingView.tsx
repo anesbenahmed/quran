@@ -11,6 +11,7 @@ import {
 } from "../ui/dialog"
 import { Textarea } from "../ui/textarea"
 import { ArrowLeft, ArrowRight } from "lucide-react"
+import VerseContainer from "./VerseContainer"
 // Tabs removed from here; panel is now its own component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import AnnotationsPanel from "../annotations/AnnotationsPanel"
@@ -475,18 +476,15 @@ export default function ReadingView({
   
               {/* Verses container (selection area) */}
               <div
-                ref={containerRef}
-                onContextMenu={handleContextMenu}
                 className="quran-text text-right leading-loose text-2xl md:text-3xl text-neutral-900 dark:text-neutral-200"
                 style={{ fontFamily: "Quran", lineHeight: "3.3rem" }}
               >
-                {ayat.length > 0 ? (
-                  <p className="text-pretty" dir="rtl">
-                    {ayat.map((row, idx) => renderRow(row, idx === ayat.length - 1))}
-                  </p>
-                ) : (
-                  <p className="arabic-ui text-muted-foreground text-center py-8">لم يتم العثور على آيات لهذا الربع.</p>
-                )}
+                <VerseContainer
+                  ayat={ayat as any}
+                  containerRef={containerRef}
+                  onContextMenu={handleContextMenu}
+                  renderRow={(row, isLast) => renderRow(row as any, isLast)}
+                />
               </div>
 
             </div>

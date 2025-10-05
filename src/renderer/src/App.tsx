@@ -7,11 +7,15 @@ import HizbSelectionComp from "./components/navigation/HizbSelection"
 import QuarterSelectionComp from "./components/navigation/QuarterSelection"
 import ReadingViewComp from "./components/reading/ReadingView"
 import Sidebar from "./components/layout/Sidebar"
+import { useAppContext } from "./context/AppContext"
+import SettingsSection from "./sections/SettingsSection"
+import MarksSection from "./sections/MarksSection"
 import { Button } from "./components/ui/button"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
 // Main App Component
 function App(): React.ReactNode {
+  const { section } = useAppContext()
   const [view, setView] = useState("hizb") // 'hizb', 'quarter', 'reading'
   const [selectedHizb, setSelectedHizb] = useState<number | null>(null)
   const [selectedQuarter, setSelectedQuarter] = useState<number | null>(null)
@@ -125,47 +129,32 @@ function App(): React.ReactNode {
   }
 
   const getTitle = () => {
-    if (view === "reading" && selectedHizb && selectedQuarter) {
-      return `الحزب ${selectedHizb}، الربع ${selectedQuarter}`
+    if (section === "reading") {
+      if (view === "reading" && selectedHizb && selectedQuarter) return `الحزب ${selectedHizb}، الربع ${selectedQuarter}`
+      if (view === "quarter" && selectedHizb) return `الحزب ${selectedHizb}: اختر ربعا`
+      return "قارئ القرآن الكريم"
     }
-    if (view === "quarter" && selectedHizb) {
-      return `الحزب ${selectedHizb}: اختر ربعا`
-    }
+    if (section === "marks") return "العلامات"
+    if (section === "settings") return "الإعدادات"
     return "قارئ القرآن الكريم"
   }
 
-  const layoutDirection = view === "reading" ? "flex-row" : "flex-row-reverse"
+  // Listen to navigation requests from other sections
+  useEffect(() => {
+    const handler = (e: any) => {
+      const { hizb, quarter, rowId } = e.detail || {}
+      if (hizb && quarter) handleRequestNavigate(hizb, quarter, rowId)
+    }
+    window.addEventListener("app:navigate-reading", handler as EventListener)
+    return () => window.removeEventListener("app:navigate-reading", handler as EventListener)
+  }, [])
 
   return (
-    <div className={`flex max-h-screen overflow-hidden bg-[#f2f7ff]`}>
-      <Sidebar
-        open={sidebarOpen}
-        onToggle={() => setSidebarOpen((v) => !v)}
-        side={view === "reading" ? "left" : "right"}
-        onOpenAnnotations={() => {
-          if (view !== 'reading') {
-            // If we already have a hizb+quarter selected, navigate to reading first
-            if (selectedHizb && selectedQuarter) {
-              setView('reading')
-              setTimeout(() => window.dispatchEvent(new Event('open-annotations-panel')), 50)
-              return
-            }
-            // If we're in quarter view with a hizb selected but no quarter yet, default to quarter 1
-            if (view === 'quarter' && selectedHizb && !selectedQuarter) {
-              setSelectedQuarter(1)
-              setView('reading')
-              setTimeout(() => window.dispatchEvent(new Event('open-annotations-panel')), 80)
-              return
-            }
-            // Otherwise, keep UI consistent; user can pick hizb/quarter then open panel
-          } else {
-            window.dispatchEvent(new Event('open-annotations-panel'))
-          }
-        }}
-      />
-      <main className="flex-1">
-        <div className="w-full max-w-5xl mx-auto" dir="rtl">
-          {view !== "hizb" && (
+    <div className={`flex h-screen overflow-hidden bg-[#f2f7ff]`}>
+      <Sidebar open={sidebarOpen} onToggle={() => setSidebarOpen((v) => !v)} side="left" />
+      <main className="flex-1 h-screen overflow-hidden">
+        <div className="w-full h-full max-w-5xl mx-auto" dir="rtl">
+          {section === "reading" && view !== "hizb" && (
             <Button
               variant="ghost"
               size="icon"
@@ -176,12 +165,12 @@ function App(): React.ReactNode {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           )}
-          {view === "hizb" && (
+          {section === "reading" && view === "hizb" && (
             <div className="min-h-[calc(100vh-0px)] flex items-center justify-center" dir="rtl">
               <HizbSelectionComp onSelectHizb={handleSelectHizb} />
             </div>
           )}
-          {view === "quarter" && selectedHizb !== null && (
+          {section === "reading" && view === "quarter" && selectedHizb !== null && (
             <div className="min-h-[calc(100vh-0px)] flex flex-col items-center justify-center">
               <QuarterSelectionComp hizb={selectedHizb} onSelectQuarter={handleSelectQuarter} />
               <div className="mt-4 flex items-center justify-center gap-3">
@@ -192,7 +181,7 @@ function App(): React.ReactNode {
                   disabled={isFirstHizb}
                   aria-label="السابق"
                 >
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -201,12 +190,12 @@ function App(): React.ReactNode {
                   disabled={isLastHizb}
                   aria-label="التالي"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
               </div>
             </div>
           )}
-          {view === "reading" && selectedHizb && selectedQuarter && (
+          {section === "reading" && view === "reading" && selectedHizb && selectedQuarter && (
             <ReadingViewComp
               hizb={selectedHizb}
               quarter={selectedQuarter}
@@ -216,6 +205,16 @@ function App(): React.ReactNode {
               onPrevQuarter={goToPrevQuarter}
               onNextQuarter={goToNextQuarter}
             />
+          )}
+          {section === "marks" && (
+            <div className="h-full">
+              <MarksSection />
+            </div>
+          )}
+          {section === "settings" && (
+            <div className="h-full">
+              <SettingsSection />
+            </div>
           )}
         </div>
       </main>

@@ -1,24 +1,24 @@
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
 import { BookOpen, ChevronsLeft, ChevronsRight, Settings, Search, Bookmark, StickyNote, PanelsTopLeft } from "lucide-react"
+import { useAppContext } from "../../context/AppContext"
 
 export default function Sidebar({
   open,
   onToggle,
-  onOpenAnnotations,
-  side = "right",
+  side = "left",
 }: {
   open: boolean
   onToggle: () => void
-  onOpenAnnotations: () => void
   side?: "left" | "right"
 }) {
+  const { setSection } = useAppContext()
   const borderSide = side === "left" ? "border-r" : "border-l"
   return (
     <aside
       dir="rtl"
       className={cn(
-        "sticky top-0 h-screen z-10 bg-white dark:bg-neutral-950 dark:border-neutral-800 shadow-sm",
+        "sticky top-0 h-screen z-10 bg-white dark:bg-neutral-950 dark:border-neutral-800 shadow-sm flex-none",
         borderSide,
         open ? "w-64" : "w-16",
         "transition-all duration-200 flex flex-col"
@@ -44,7 +44,8 @@ export default function Sidebar({
 
       {/* Primary actions */}
       <nav className="p-3 space-y-2">
-        <SidebarItem open={open} icon={<PanelsTopLeft className="w-4 h-4" />} label="العلامات" onClick={onOpenAnnotations} />
+        <SidebarItem open={open} icon={<BookOpen className="w-4 h-4" />} label="القراءة" onClick={() => setSection("reading")} />
+        <SidebarItem open={open} icon={<PanelsTopLeft className="w-4 h-4" />} label="العلامات" onClick={() => setSection("marks")} />
         <SidebarItem open={open} icon={<Search className="w-4 h-4" />} label="بحث" onClick={() => {}} />
         <SidebarItem open={open} icon={<Bookmark className="w-4 h-4" />} label="إشارات مرجعية" onClick={() => {}} />
         <SidebarItem open={open} icon={<StickyNote className="w-4 h-4" />} label="ملاحظات" onClick={() => {}} />
@@ -55,7 +56,7 @@ export default function Sidebar({
 
       {/* Settings */}
       <div className="p-3 border-t dark:border-neutral-800">
-        <SidebarItem open={open} icon={<Settings className="w-4 h-4" />} label="الإعدادات" onClick={() => {}} />
+        <SidebarItem open={open} icon={<Settings className="w-4 h-4" />} label="الإعدادات" onClick={() => setSection("settings")} />
       </div>
     </aside>
   )

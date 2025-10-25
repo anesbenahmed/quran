@@ -14,6 +14,7 @@ import VerseContainer from "./VerseContainer"
 // Tabs removed from here; panel is now its own component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import AnnotationsPanel from "../annotations/AnnotationsPanel"
+import * as SettingsService from "../../services/settings"
 
 interface WarshQuranEntry {
   id: number
@@ -62,6 +63,53 @@ export default function ReadingView({
     excerpt: string
     groupId?: string
   }
+
+  // Helpers for contrast-aware text color on colored backgrounds
+  const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+    try {
+      let h = hex.trim()
+      if (h.startsWith("#")) h = h.slice(1)
+      if (h.length === 3) {
+        h = h.split("").map((c) => c + c).join("")
+      }
+      if (h.length !== 6) return null
+      const num = parseInt(h, 16)
+      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 }
+    } catch {
+      return null
+    }
+  }
+
+  const relativeLuminance = (r: number, g: number, b: number): number => {
+    const srgb = [r, g, b].map((v) => {
+      const x = v / 255
+      return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
+    })
+    return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2]
+  }
+
+  const getReadableTextColor = (bgHex: string): string => {
+    const rgb = hexToRgb(bgHex)
+    if (!rgb) return "#111111"
+    const L = relativeLuminance(rgb.r, rgb.g, rgb.b)
+    // If background is dark (low luminance), return white; else near-black
+    return L < 0.5 ? "#ffffff" : "#111111"
+  }
+
+  const saveRecentColor = async (type: "mistake" | "mutashabih", hex: string) => {
+    try {
+      const key = type === "mistake" ? "recentColors.mistake" : "recentColors.mutashabih"
+      const list = (type === "mistake" ? recentMistakeColors : recentMutashabihColors).filter(
+        (c) => c.toLowerCase() !== hex.toLowerCase(),
+      )
+      const next = [hex, ...list].slice(0, 12)
+      if (type === "mistake") setRecentMistakeColors(next)
+      else setRecentMutashabihColors(next)
+      await SettingsService.set(key, next)
+    } catch (e) {
+      console.error("Failed to save recent color:", e)
+    }
+  }
   const [globalAnnotations, setGlobalAnnotations] = useState<Annotation[]>([])
   const [groups, setGroups] = useState<{ id: string; color: string; label?: string | null }[]>([])
 
@@ -81,6 +129,8 @@ export default function ReadingView({
   const [noteText, setNoteText] = useState("")
   const [colorValue, setColorValue] = useState<string>("#ff0000")
   const [selectedGroupId, setSelectedGroupId] = useState<"new" | string>("new")
+  const [recentMistakeColors, setRecentMistakeColors] = useState<string[]>([])
+  const [recentMutashabihColors, setRecentMutashabihColors] = useState<string[]>([])
 
   useEffect(() => {
     const openPanel = () => setPanelOpen(true)
@@ -106,6 +156,21 @@ export default function ReadingView({
 
     fetchAyat()
   }, [hizb, quarter])
+
+  // Load recent colors from settings
+  useEffect(() => {
+    (async () => {
+      try {
+        await SettingsService.initialize()
+        const m = (await SettingsService.get<string[]>("recentColors.mistake")) || []
+        const mu = (await SettingsService.get<string[]>("recentColors.mutashabih")) || []
+        setRecentMistakeColors(Array.isArray(m) ? m : [])
+        setRecentMutashabihColors(Array.isArray(mu) ? mu : [])
+      } catch (e) {
+        console.error("Failed to load recent colors:", e)
+      }
+    })()
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -409,14 +474,21 @@ export default function ReadingView({
       }
       const hasNote = segAnns.some((a) => a.type === "note")
 
+      const computedStyle: React.CSSProperties = {
+        color: backgroundColor && !color ? getReadableTextColor(backgroundColor) : color,
+        backgroundColor,
+      }
+      if (hasNote) {
+        computedStyle.textDecoration = "underline"
+        computedStyle.textDecorationColor = "#ef4444" // tailwind red-500
+        computedStyle.textDecorationThickness = "1.5px"
+        computedStyle.textUnderlineOffset = "2px"
+      }
+
       segments.push(
         <span
           key={`${row.id}-${s}-${e}`}
-          style={{
-            color,
-            backgroundColor,
-            textDecoration: hasNote ? "underline" : undefined,
-          }}
+          style={computedStyle}
           title={hasNote ? segAnns.find((a) => a.type === "note")?.note || "ملاحظة" : undefined}
         >
           {segText}
@@ -492,16 +564,13 @@ export default function ReadingView({
           className="fixed z-50 min-w-[12rem] rounded-md border border-border bg-surface p-1 text-foreground shadow-md"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
-          <div className="px-3 py-2 text-sm text-muted-foreground">
-            تحديد: <span className="font-semibold">{contextMenu.selectionText}</span>
-          </div>
-          <button className="w-full text-right px-3 py-2 text-sm hover:bg-muted" onClick={handleAddNote}>
+          <button className="w-full text-right px-3 py-2 text-sm" onClick={handleAddNote}>
             إضافة ملاحظة
           </button>
-          <button className="w-full text-right px-3 py-2 text-sm hover:bg-muted" onClick={handleAddMistake}>
+          <button className="w-full text-right px-3 py-2 text-sm" onClick={handleAddMistake}>
             إضافة خطأ (لون النص)
           </button>
-          <button className="w-full text-right px-3 py-2 text-sm hover:bg-muted" onClick={handleAddMutashabih}>
+          <button className="w-full text-right px-3 py-2 text-sm" onClick={handleAddMutashabih}>
             إضافة متشابهات (لون الخلفية)
           </button>
         </div>
@@ -563,16 +632,69 @@ export default function ReadingView({
             </div>
           )}
           {(pendingType === "mistake" || selectedGroupId === "new") && (
-            <div className="flex items-center gap-3 mt-3">
-              <input
-                type="color"
-                value={colorValue}
-                onChange={(e) => setColorValue(e.target.value)}
-                className="h-10 w-16 cursor-pointer"
-                aria-label="Color picker"
-              />
-              <span className="text-sm">{colorValue}</span>
-            </div>
+            <>
+              {((pendingType === "mistake" && recentMistakeColors.length) || (pendingType === "mutashabih" && recentMutashabihColors.length)) ? (
+                <div className="mt-3">
+                  <div className="text-xs text-muted-foreground mb-2">الألوان المستخدمة مؤخراً</div>
+                  <div className="flex flex-wrap gap-2">
+                    {(pendingType === "mistake" ? recentMistakeColors : recentMutashabihColors).map((c) => (
+                      <button
+                        key={c}
+                        className="h-6 w-6 rounded border border-border"
+                        style={{ backgroundColor: c }}
+                        onClick={() => setColorValue(c)}
+                        aria-label={c}
+                        title={c}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="mt-3">
+                <div className="text-xs text-muted-foreground mb-2">ألوان مقترحة</div>
+                <div className="grid grid-cols-8 gap-2">
+                  {[
+                    { name: "أحمر", v: "#ef4444" },
+                    { name: "برتقالي", v: "#f97316" },
+                    { name: "عنبر", v: "#f59e0b" },
+                    { name: "أصفر", v: "#eab308" },
+                    { name: "ليموني", v: "#84cc16" },
+                    { name: "أخضر", v: "#22c55e" },
+                    { name: "زمردي", v: "#10b981" },
+                    { name: "سماوي", v: "#06b6d4" },
+                    { name: "أزرق", v: "#3b82f6" },
+                    { name: "نيلي", v: "#6366f1" },
+                    { name: "بنفسجي", v: "#8b5cf6" },
+                    { name: "أرجواني", v: "#a855f7" },
+                    { name: "وردي", v: "#ec4899" },
+                    { name: "حجري", v: "#fda4af" },
+                    { name: "رمادي", v: "#6b7280" },
+                    { name: "أسود", v: "#111827" },
+                  ].map((p) => (
+                    <button
+                      key={p.v}
+                      className="h-7 w-7 rounded border border-border"
+                      style={{ backgroundColor: p.v }}
+                      onClick={() => setColorValue(p.v)}
+                      title={`${p.name} ${p.v}`}
+                      aria-label={`${p.name} ${p.v}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 mt-3">
+                <input
+                  type="color"
+                  value={colorValue}
+                  onChange={(e) => setColorValue(e.target.value)}
+                  className="h-10 w-16 cursor-pointer"
+                  aria-label="Color picker"
+                />
+                <span className="text-sm">{colorValue}</span>
+              </div>
+            </>
           )}
           <DialogFooter>
             <Button
@@ -596,8 +718,10 @@ export default function ReadingView({
                     }
                   }
                   await addAnnotation({ type: pendingType, color: finalColor, groupId: gid })
+                  if (selectedGroupId === "new") await saveRecentColor("mutashabih", colorValue)
                 } else {
                   await addAnnotation({ type: pendingType, color: colorValue })
+                  await saveRecentColor("mistake", colorValue)
                 }
                 setColorDialogOpen(false)
               }}

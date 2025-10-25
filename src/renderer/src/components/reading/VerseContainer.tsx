@@ -83,25 +83,3 @@ export default function VerseContainer({
   )
 }
 
-// Future helper to split verse text across visual lines while keeping words intact as much as possible.
-function splitTextByLines(text: string, lines: number): string[] {
-  if (lines <= 1) return [text]
-  const len = text.length
-  const approx = Math.max(1, Math.floor(len / lines))
-  const parts: string[] = []
-  let i = 0
-  while (i < len) {
-    let end = Math.min(len, i + approx)
-    // try not to break inside a word
-    if (end < len) {
-      const nextSpace = text.indexOf(" ", end)
-      if (nextSpace !== -1 && nextSpace - end < 8) {
-        end = nextSpace + 1
-      }
-    }
-    parts.push(text.slice(i, end))
-    i = end
-  }
-  while (parts.length < lines) parts.push("")
-  return parts
-}

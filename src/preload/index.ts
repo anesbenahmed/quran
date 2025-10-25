@@ -32,11 +32,18 @@ const api = {
     }>) => ipcRenderer.invoke('marks:update', id, patch) as Promise<{ changes: number }>,
     delete: (id: string) => ipcRenderer.invoke('marks:delete', id) as Promise<{ changes: number }>
   },
+  settings: {
+    init: () => ipcRenderer.invoke('settings:init') as Promise<boolean>,
+    get: (key: string) => ipcRenderer.invoke('settings:get', key) as Promise<string | null>,
+    set: (key: string, value: string) => ipcRenderer.invoke('settings:set', key, value) as Promise<{ changes: number }>,
+    getAll: () => ipcRenderer.invoke('settings:getAll') as Promise<Array<{ key: string; value: string }>>,
+  },
   groups: {
     list: () => ipcRenderer.invoke('marks:groups:list') as Promise<any[]>,
     create: (payload: { id?: string; color: string; label?: string|null }) => ipcRenderer.invoke('marks:groups:create', payload) as Promise<{ id: string; createdAt: number; changes: number }>,
     update: (id: string, patch: { color?: string; label?: string|null }) => ipcRenderer.invoke('marks:groups:update', id, patch) as Promise<{ changes: number }>,
-    delete: (id: string) => ipcRenderer.invoke('marks:groups:delete', id) as Promise<{ changes: number }>
+    delete: (id: string) => ipcRenderer.invoke('marks:groups:delete', id) as Promise<{ changes: number }>,
+    applyColor: (id: string) => ipcRenderer.invoke('marks:groups:apply-color', id) as Promise<{ changes: number }>,
   }
 }
 // Use `contextBridge` APIs to expose Electron APIs to

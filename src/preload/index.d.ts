@@ -33,11 +33,18 @@ declare global {
         }>) => Promise<{ changes: number }>
         delete: (id: string) => Promise<{ changes: number }>
       }
+      settings: {
+        init: () => Promise<boolean>
+        get: (key: string) => Promise<string | null>
+        set: (key: string, value: string) => Promise<{ changes: number }>
+        getAll: () => Promise<Array<{ key: string; value: string }>>
+      }
       groups: {
         list: () => Promise<any[]>
         create: (payload: { id?: string; color: string; label?: string|null }) => Promise<{ id: string; createdAt: number; changes: number }>
         update: (id: string, patch: { color?: string; label?: string|null }) => Promise<{ changes: number }>
         delete: (id: string) => Promise<{ changes: number }>
+        applyColor: (id: string) => Promise<{ changes: number }>
       }
     }  }
 }

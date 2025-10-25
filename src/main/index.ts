@@ -126,10 +126,16 @@ app.on('window-all-closed', () => {
   }
 })
 
-ipcMain.handle('db:query', (_event, sql, params) => {
+ipcMain.handle('db:query', (_event, sql: string, params?: any[]) => {
   try {
     const stmt = db.prepare(sql)
-    return stmt.all(params)
+    const firstToken = sql.trim().split(/\s+/)[0].toLowerCase()
+    if (firstToken === 'select' || firstToken === 'with') {
+      return stmt.all(params)
+    } else {
+      const info = stmt.run(params)
+      return { changes: info.changes, lastInsertRowid: info.lastInsertRowid }
+    }
   } catch (err) {
     console.error('Database query error:', err)
     throw err // Forward the error to the renderer process
@@ -285,6 +291,54 @@ ipcMain.handle('marks:groups:delete', (_event, id: string) => {
   const info = mdb.prepare('DELETE FROM annotation_groups WHERE id = ?').run(id)
   // Orphan annotations will keep group_id but FK will set NULL only if using ON DELETE SET NULL and foreign_keys ON.
   return { changes: info.changes }
+})
+
+// Apply the group's color to all its mutashabihat annotations
+ipcMain.handle('marks:groups:apply-color', (_event, id: string) => {
+  const mdb = ensureMarksDb()
+  const row = mdb.prepare('SELECT color FROM annotation_groups WHERE id = ?').get(id) as { color?: string } | undefined
+  if (!row || !row.color) return { changes: 0 }
+  const info = mdb
+    .prepare("UPDATE annotations SET color = ? WHERE group_id = ? AND type = 'mutashabih'")
+    .run(row.color, id)
+  return { changes: info.changes }
+})
+
+// Settings IPC stored in the marks.db (userData)
+ipcMain.handle('settings:init', () => {
+  const mdb = ensureMarksDb()
+  try {
+    mdb.exec(`
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
+    `)
+    return true
+  } catch (e) {
+    console.error('Failed to init settings table:', e)
+    return false
+  }
+})
+
+ipcMain.handle('settings:get', (_event, key: string) => {
+  const mdb = ensureMarksDb()
+  const row = mdb.prepare('SELECT value FROM settings WHERE key = ?').get(key)
+  return row ? row.value : null
+})
+
+ipcMain.handle('settings:set', (_event, key: string, value: string) => {
+  const mdb = ensureMarksDb()
+  const info = mdb
+    .prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value')
+    .run(key, value)
+  return { changes: info.changes }
+})
+
+ipcMain.handle('settings:getAll', () => {
+  const mdb = ensureMarksDb()
+  const rows = mdb.prepare('SELECT key, value FROM settings').all()
+  return rows
 })
 
 // In this file you can include the rest of your app"s specific main process
